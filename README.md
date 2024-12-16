@@ -18,7 +18,7 @@ The **Mail AI Helper** is a Python-based application that integrates with Claude
 
 3. **Rank Email Priority**:
 
-   - Claude assigns priorities such as `Urgent`, `Important`, `Normal`, or `Low` to each email.
+   - Claude assigns priorities such as `Urgent\Not Urgent`, `Important\Not Important` to each email.
 
 4. **Interactive Workflow**:
 
@@ -53,7 +53,7 @@ The **Mail AI Helper** is a Python-based application that integrates with Claude
 
    ```bash
    python -m venv .venv
-   source .venv/bin/activate # On Windows: .venv\Scripts\activate
+   .venv/Scripts/activate
    ```
 
 3. Install dependencies:
@@ -82,7 +82,7 @@ The **Mail AI Helper** is a Python-based application that integrates with Claude
    Run the authentication script to generate a `token.json` file:
 
    ```bash
-   python auth.py
+   uv run src/mail/auth.py
    ```
 
 ---
@@ -94,7 +94,7 @@ The **Mail AI Helper** is a Python-based application that integrates with Claude
 1. Fetch emails and categorize them:
 
    ```bash
-   python fetch_emails.py
+   uv run src/mail/fetch_emails.py
    ```
 
 2. Follow the instructions:
@@ -135,7 +135,7 @@ mail-ai-helper/
 
 ### Categorization and Prioritization
 
-- Sends a follow-up prwe
+- Sends a follow-up prompt for Categorization and Prioritization.
 
 ---
 
@@ -175,6 +175,19 @@ mail-ai-helper/
   }
 ]
 ```
+
+---
+
+## **Security Note**
+
+### Handle Sensitive Data Wisely
+
+This application interacts with sensitive data such as email credentials and content. Follow these best practices to ensure security:
+
+- **Never Share Credentials**: Keep `credentials.json` and `token.json` private and secure.
+- **Use .gitignore**: Ensure sensitive files are excluded from version control.
+- **Rotate Credentials Regularly**: Change API keys and tokens periodically.
+- **Advice Official Documentation**: Refer to the official [Model Context Protocol Documentation](https://modelcontextprotocol.io/introduction) for additional security and best practices.
 
 ---
 
