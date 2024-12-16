@@ -1,65 +1,76 @@
-import asyncio
 import pyautogui
 import time
-from mail.auth import get_gmail_service
-from mail.server import query_gmail, format_email
+import pyperclip
 
-def send_to_claude_via_pyautogui(email_content: str):
+
+def send_combined_prompt_to_claude(num_emails: int):
     """
-    Use PyAutoGUI to send a prompt to Claude Desktop.
+    Use PyAutoGUI to send a combined fetch and categorization prompt to Claude Desktop.
     Args:
-        email_content (str): Formatted email content with subject and sender.
+        num_emails (int): Number of emails to fetch and categorize.
     """
-    # Construct the prompt for Claude
-    prompt = (
-        f"The following email was received:\n"
-        f"{email_content}\n\n"
-        "Please categorize this email into one of the following categories: "
-        "(Work, School, Shopping, Family, Friends, Other). "
-        "Also, rank the email by priority (Urgent, Important, Normal, Low)."
-        "Response example: The following email is categorized as [x] and has priority [y]"
+    # Construct the combined fetch and categorization prompt
+    combined_prompt = (
+        f"Retrieve the first {num_emails} emails from my Gmail account. "
+        f"For each email, provide the subject and sender in JSON format. Then, categorize each email into one of the following categories: "
+        f"(Work, School, Shopping, Family, Friends, Other). Additionally, rank each email by priority: "
+        f"(Urgent, Not Urgent) and (Important, Not Important). "
+        f"Response example: {{'Subject': '...', 'Sender': '...', 'Category': 'School', 'Priority': 'Urgent, Important'}}"
     )
 
     # Focus the Claude Desktop window
     print("Switch to the Claude Desktop window now!")
-    time.sleep(5)  # Allow time to manually switch to the window
+    time.sleep(5)
 
-    # Type the prompt
-    pyautogui.typewrite(prompt, interval=0.05)  # Type each character with a slight delay
-
-    # Press Enter to send the prompt
+    # Type the combined prompt
+    pyautogui.typewrite(combined_prompt, interval=0.05)
     pyautogui.press("enter")
-    print("Prompt sent to Claude!")
+    print("Combined prompt sent to Claude!")
 
-    # Wait for Claude to process the input
-    time.sleep(10)  # Adjust this based on response time
-
-    print("Check the Claude response manually or capture it programmatically.")
-
-async def categorize_emails():
-    # Step 1: Fetch emails
-    max_results = 5  # Number of emails to fetch
-    service = get_gmail_service()
-    emails = await query_gmail(service, max_results)
-
-    if not emails:
-        print("No emails found.")
-        return
-
-    # Step 2: Process each email
-    for email_metadata in emails:
-        # Reuse format_email function to extract subject and sender
-        email_content = format_email(service, email_metadata)
-
-        # Send prompt to Claude Desktop
-        send_to_claude_via_pyautogui(email_content)
-
-        # Wait for manual verification of the response before continuing
-        input("Press Enter after processing this email...")
-
-    print("Email categorization completed!")
+    # Wait for Claude to process the request
+    time.sleep(20)
 
 
-# Main entry point
+def copy_claude_response():
+    """
+    Copy Claude's response from the desktop.
+    """
+    print("Copying Claude's response...")
+    pyautogui.hotkey("ctrl", "a")  # Select all text
+    pyautogui.hotkey("ctrl", "c")  # Copy selected text
+
+    # Retrieve text from the clipboard
+    response_text = pyperclip.paste()
+    print("Response copied from Claude.")
+    return response_text
+
+
+def stop_claude():
+    """
+    Send a final command to Claude to stop generating responses.
+    """
+    print("Sending stop command to Claude...")
+    pyautogui.typewrite("Thank you. Stop.", interval=0.05)
+    pyautogui.press("enter")
+    print("Stop command sent.")
+
+
+def main():
+    num_emails = 10 # Number of emails to fetch and categorize
+
+    # Step 1: Send combined fetch and categorization prompt to Claude
+    send_combined_prompt_to_claude(num_emails)
+
+    # Step 2: Copy Claude's response
+    categorized_response = copy_claude_response()
+
+    # Step 3: Stop Claude from continuing
+    stop_claude()
+
+    # Step 4: Print the final categorized response
+    print("Process completed! Check the categorization response below:")
+    print(categorized_response)
+
+
 if __name__ == "__main__":
-    asyncio.run(categorize_emails())
+    main()
